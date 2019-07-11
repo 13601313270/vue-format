@@ -7,7 +7,7 @@ export default function([value0, value1, value2, style]) {
             '</span>';
     } else {
         if(style) {
-            return '<span class="vue-format-single' + ('vue-format-single-color-' + style) + '">' +
+            return '<span class="vue-format-single' + (' vue-format-single-color-' + style) + '">' +
                 [value0, value1, value2].join('') +
                 '</span>';
         } else {
