@@ -48,6 +48,76 @@
         return nearHalf;
     }
 
+    function replaceDate(creatVal, value) {
+        if(value.toString().match(/(\d{10})/) || value.toString().match(/(\d{13})/)) {
+            let date = new Date();
+            if(value.toString().match(/(\d{10})/)) {
+                date.setTime(parseInt(value) * 1000);
+            } else {
+                date.setTime(parseInt(value));
+            }
+            let rep = [
+                [
+                    'YYYY',
+                    (date) => {
+                        return date.getFullYear()
+                    }
+                ],
+                [
+                    'YY',
+                    (date) => {
+                        return date.getFullYear().toString().slice(2);
+                    }
+                ],
+                [
+                    'MM',
+                    (date) => {
+                        let month = date.getMonth() + 1;
+                        return (month < 10 ? '0' : '') + month;
+                    }
+                ],
+                [
+                    'DD',
+                    (date) => {
+                        let day = date.getDate();
+                        return (day < 10 ? '0' : '') + day;
+                    }
+                ],
+                [
+                    'HH',
+                    (date) => {
+                        let day = date.getHours();
+                        return (day < 10 ? '0' : '') + day;
+                    }
+                ],
+                [
+                    'hh',
+                    (date) => {
+                        let hour = date.getHours();
+                        return (hour < 10 ? '0' : '') + hour;
+                    }
+                ],
+                [
+                    'mm',
+                    (date) => {
+                        let minute = date.getMinutes();
+                        return (minute < 10 ? '0' : '') + minute;
+                    }
+                ], [
+                    'ss',
+                    (date) => {
+                        let second = date.getSeconds();
+                        return (second < 10 ? '0' : '') + second;
+                    }
+                ],
+            ];
+            rep.forEach(item => {
+                creatVal = creatVal.replace(item[0], item[1](date));
+            });
+        }
+        return creatVal.toString();
+    }
+
     function format(code, value) {
         let oldValue = value;
         let matchFunc = [
@@ -360,7 +430,7 @@
                 let findStr = code.match(/^"([^"]*)"/);
                 returnHtml += findStr[1];
                 code = code.replace(/^"([^"]*)"/, '');
-            } else if(temp === '\\') {
+            } else if(temp === '\\' || temp === '!') {
                 returnHtml += code[1];
                 code = code.slice(2);
             } else if(temp === ',') {
@@ -370,6 +440,7 @@
                 code = code.slice(1);
             }
         }
+        returnHtml = replaceDate(returnHtml, oldValue);
         returnValue[2] = returnHtml;
         // 如果只配置了规则或者颜色，等于默认填充了值
         if((usedCalc || styleColor) && returnHtml === '') {
@@ -447,16 +518,22 @@
     test('"集团"@"部"', '财务', '集团财务部');
     test('@@@', '财务', '财务财务财务');
     test('@*-', 'ABC', '<span class="vue-format-single"><span>ABC</span><span class="vue-format-single-fill">-</span></span>');
-    test('¥* #', '123123', '<span class="vue-format-single"><span>¥</span><span class="vue-format-single-fill"> </span><span>123123</span></span>');
-    test('**', '123123', '<span class="vue-format-single"><span class="vue-format-single-fill">*</span></span>');
-    test('#\\元', '123123', '123123元');
-    test('#"人民币"', '123123', '123123人民币');
-    test('[蓝色]#.00', '0.123', '<span class="vue-format-singlevue-format-single-color-blue">0.12</span>');// wrong
-    test('[蓝色]¥*-0', '1', '<span class="vue-format-single vue-format-single-color-blue"><span>¥</span><span class="vue-format-single-fill">-</span><span>1</span></span>');
-    test('[>1]"上升";[=1]"持平";"下降"', '1.2', '上升');
-    test('[>=1]"上升";[=1]"持平";"下降"', '1', '上升');
+    test('¥* #', 123123, '<span class="vue-format-single"><span>¥</span><span class="vue-format-single-fill"> </span><span>123123</span></span>');
+    test('**', 123123, '<span class="vue-format-single"><span class="vue-format-single-fill">*</span></span>');
+    test('#\\元', 123123, '123123元');
+    test('#"人民币"', 123123, '123123人民币');
+    test('[蓝色]#.00', 0.123, '<span class="vue-format-singlevue-format-single-color-blue">0.12</span>');// wrong
+    test('[蓝色]¥*-0', 1, '<span class="vue-format-single vue-format-single-color-blue"><span>¥</span><span class="vue-format-single-fill">-</span><span>1</span></span>');
+    test('[>1]"上升";[=1]"持平";"下降"', 1.2, '上升');
+    test('[>=1]"上升";[=1]"持平";"下降"', 1, '上升');
     test('[>1][绿色];[=1][黄色];[红色]', 1.2, '<span class="vue-format-singlevue-format-single-color-green">1.2</span>');
     test('[>1][绿色];[=1][黄色];[红色]', 1, '<span class="vue-format-singlevue-format-single-color-yellow">1</span>');
     test('[>1][绿色];[=1][黄色];[红色]', 0.8, '<span class="vue-format-singlevue-format-single-color-red">0.8</span>');
+    test('!"#!"', 10, '"10"');
+    test('#_圆圆', 123123, '123123<span style="opacity: 0">圆</span>圆');
+    test('YYYY', 1562838244, '2019');
+    test('YY', 1562838244, '19');
+    test('YY-MM-DD', 1562838244, '19-07-11');
+    test('YY-MM-DD HH:mm:ss', 1562838244, '19-07-11 17:44:04');
 
 }());

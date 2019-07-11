@@ -1,4 +1,5 @@
 import getNearFenshu from "./similarFraction";
+import replaceDate from './replaceDate';
 
 export default function(code, value) {
     let oldValue = value;
@@ -319,7 +320,7 @@ export default function(code, value) {
             let findStr = code.match(/^"([^"]*)"/);
             returnHtml += findStr[1];
             code = code.replace(/^"([^"]*)"/, '');
-        } else if(temp === '\\') {
+        } else if(temp === '\\' || temp === '!') {
             returnHtml += code[1];
             code = code.slice(2);
         } else if(temp === ',') {
@@ -329,6 +330,7 @@ export default function(code, value) {
             code = code.slice(1);
         }
     }
+    returnHtml = replaceDate(returnHtml, oldValue);
     returnValue[2] = returnHtml;
     // 如果只配置了规则或者颜色，等于默认填充了值
     if((usedCalc || styleColor) && returnHtml === '') {

@@ -48,15 +48,20 @@ test('"人民币 "#,##0,,"百万"', 1234567890, '人民币 1,235百万');
 test('"集团"@"部"', '财务', '集团财务部');
 test('@@@', '财务', '财务财务财务');
 test('@*-', 'ABC', '<span class="vue-format-single"><span>ABC</span><span class="vue-format-single-fill">-</span></span>');
-test('¥* #', '123123', '<span class="vue-format-single"><span>¥</span><span class="vue-format-single-fill"> </span><span>123123</span></span>');
-test('**', '123123', '<span class="vue-format-single"><span class="vue-format-single-fill">*</span></span>');
-test('#\\元', '123123', '123123元');
-test('#"人民币"', '123123', '123123人民币');
-test('[蓝色]#.00', '0.123', '<span class="vue-format-singlevue-format-single-color-blue">0.12</span>');// wrong
-test('[蓝色]¥*-0', '1', '<span class="vue-format-single vue-format-single-color-blue"><span>¥</span><span class="vue-format-single-fill">-</span><span>1</span></span>');
-test('[>1]"上升";[=1]"持平";"下降"', '1.2', '上升');
-test('[>=1]"上升";[=1]"持平";"下降"', '1', '上升');
+test('¥* #', 123123, '<span class="vue-format-single"><span>¥</span><span class="vue-format-single-fill"> </span><span>123123</span></span>');
+test('**', 123123, '<span class="vue-format-single"><span class="vue-format-single-fill">*</span></span>');
+test('#\\元', 123123, '123123元');
+test('#"人民币"', 123123, '123123人民币');
+test('[蓝色]#.00', 0.123, '<span class="vue-format-singlevue-format-single-color-blue">0.12</span>');// wrong
+test('[蓝色]¥*-0', 1, '<span class="vue-format-single vue-format-single-color-blue"><span>¥</span><span class="vue-format-single-fill">-</span><span>1</span></span>');
+test('[>1]"上升";[=1]"持平";"下降"', 1.2, '上升');
+test('[>=1]"上升";[=1]"持平";"下降"', 1, '上升');
 test('[>1][绿色];[=1][黄色];[红色]', 1.2, '<span class="vue-format-singlevue-format-single-color-green">1.2</span>');
 test('[>1][绿色];[=1][黄色];[红色]', 1, '<span class="vue-format-singlevue-format-single-color-yellow">1</span>');
 test('[>1][绿色];[=1][黄色];[红色]', 0.8, '<span class="vue-format-singlevue-format-single-color-red">0.8</span>');
-
+test('!"#!"', 10, '"10"');
+test('#_圆圆', 123123, '123123<span style="opacity: 0">圆</span>圆');
+test('YYYY', 1562838244, '2019');
+test('YY', 1562838244, '19');
+test('YY-MM-DD', 1562838244, '19-07-11');
+test('YY-MM-DD HH:mm:ss', 1562838244, '19-07-11 17:44:04');
