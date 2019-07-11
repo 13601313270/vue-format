@@ -1,7 +1,50 @@
 import getNearFenshu from "./similarFraction";
 
 export default function(code, value) {
+    let oldValue = value;
+    let matchFunc = [
+        function(value) {
+            return parseFloat(value).toString() === value.toString() && parseFloat(value) > 0;
+        },
+        function(value) {
+            return parseFloat(value).toString() === value.toString() && parseFloat(value) < 0;
+        },
+        function(value) {
+            return value === 0 || value === '0' || value === '-0';
+        },
+        function(value) {
+            return true;
+        }
+    ];
+    let usedCalc = false;
     code = code.split(';');
+    if(code.length < 4 && code[0].match(/^\[(>|<|=|>=|<=|<>)\d+\]/)) {
+        usedCalc = true;
+        // 使用了条件表达式
+        matchFunc = [
+            function(value) {
+                let temp = code[0].match(/^\[(>|<|=|>=|<=|<>)(\d+)\]/);
+                if(temp[1] === '=') {
+                    temp[1] = '==';
+                }
+                return eval((parseFloat(value).toString() === value.toString() && parseFloat(value)).toString() + temp[1] + temp[2]);
+            },
+            function(value) {
+                if(code[1].match(/^\[(>|<|=|>=|<=|<>)\d+\]/)) {
+                    let temp = code[1].match(/^\[(>|<|=|>=|<=|<>)(\d+)\]/);
+                    if(temp[1] === '=') {
+                        temp[1] = '==';
+                    }
+                    return eval((parseFloat(value).toString() === value.toString() && parseFloat(value)).toString() + temp[1] + temp[2]);
+                } else {
+                    return true;
+                }
+            },
+            function() {
+                return true;
+            }
+        ];
+    }
     if(code.length === 3) {
         code[3] = '@';
     } else if(code.length === 2) {
@@ -17,18 +60,12 @@ export default function(code, value) {
         code[1] = '-' + code[0];
     }
 
-    if(value === 0 || value === '0' || value === '-0') {
-        code = code[2];
-    } else if(parseFloat(value).toString() === value.toString()) {
-        if(parseFloat(value) < 0) {
-            code = code[1];
-        } else {
-            code = code[0];
+    for (let i in matchFunc) {
+        if(matchFunc[i](value)) {
+            code = code[i];
+            break;
         }
-    } else {
-        code = code[3];
     }
-
 
     //console.log(value);
     // 遇到 % 乘以 100
@@ -65,7 +102,6 @@ export default function(code, value) {
     }
 
     value = value.toString();
-    let oldValue = value;
     //是否是分数表达式
     var isFenShuwei = false;//是否是分数
     if(code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/(.*[^*|\\|_])\/[^\d|#|0|\?]*?([\d|#|0|\?]+)/) !== null) {   //如果是分数表达式
@@ -109,7 +145,6 @@ export default function(code, value) {
     let finishedNumCount = 0;// 已经跑完的数字位置
     let styleColor = '';
     while (code.length > 0) {
-        // console.log('.');
         temp = code[0];
         if(temp === '_') {
             returnHtml += '<span style="opacity: 0">' + code[1] + '</span>';
@@ -123,7 +158,7 @@ export default function(code, value) {
             code = code.slice(2);
         } else if(temp === '[') {
             code = code.slice(1);
-            let [, type] = code.match(/^(.+)\]/);
+            let [, type] = code.match(/^([^\]]+)\]/);
             let styleColorList = {
                 '红色': 'red',
                 '黑色': 'black',
@@ -157,7 +192,7 @@ export default function(code, value) {
                 if(value.length > 1) { //有小数部分
                     if(value[0] === 0) {    //数字是小于1的
                         value[0] = '';
-                        var ppp = 0;
+                        let ppp = 0;
                         while (ppp++ < 100) {
                             if(value[1][0] !== '0') {
                                 value[0] += value[1][0];
@@ -295,6 +330,10 @@ export default function(code, value) {
         }
     }
     returnValue[2] = returnHtml;
+    // 如果只配置了规则或者颜色，等于默认填充了值
+    if((usedCalc || styleColor) && returnHtml === '') {
+        returnValue[2] = oldValue;
+    }
     if(styleColor !== '') {
         returnValue[3] = styleColor;
     }

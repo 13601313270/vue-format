@@ -36,6 +36,8 @@ test('0.#', 11.23, '11.2');
 test('#,###', 12000, '12,000');
 test('#,###', 1200000, '1,200,000');
 test('#,', 100000, '100');
+test('$00000', 1, '$00001');
+test('$00000', -1, '-$00001');
 test('#,', 1000000, '1,000');
 test('#,,', 1000000, '1');
 test('#,"k"', 123123, '123k');
@@ -52,6 +54,9 @@ test('#\\元', '123123', '123123元');
 test('#"人民币"', '123123', '123123人民币');
 test('[蓝色]#.00', '0.123', '<span class="vue-format-singlevue-format-single-color-blue">0.12</span>');// wrong
 test('[蓝色]¥*-0', '1', '<span class="vue-format-single vue-format-single-color-blue"><span>¥</span><span class="vue-format-single-fill">-</span><span>1</span></span>');
-// test('[>1]"上升";[=1]"持平";"下降"', '1.2', '上升');
-// test('[>1]"上升";[=1]"持平";"下降"', '1', '持平');
+test('[>1]"上升";[=1]"持平";"下降"', '1.2', '上升');
+test('[>=1]"上升";[=1]"持平";"下降"', '1', '上升');
+test('[>1][绿色];[=1][黄色];[红色]', 1.2, '<span class="vue-format-singlevue-format-single-color-green">1.2</span>');
+test('[>1][绿色];[=1][黄色];[红色]', 1, '<span class="vue-format-singlevue-format-single-color-yellow">1</span>');
+test('[>1][绿色];[=1][黄色];[红色]', 0.8, '<span class="vue-format-singlevue-format-single-color-red">0.8</span>');
 

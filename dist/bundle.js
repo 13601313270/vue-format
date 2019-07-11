@@ -49,7 +49,50 @@
     }
 
     function format(code, value) {
+        let oldValue = value;
+        let matchFunc = [
+            function(value) {
+                return parseFloat(value).toString() === value.toString() && parseFloat(value) > 0;
+            },
+            function(value) {
+                return parseFloat(value).toString() === value.toString() && parseFloat(value) < 0;
+            },
+            function(value) {
+                return value === 0 || value === '0' || value === '-0';
+            },
+            function(value) {
+                return true;
+            }
+        ];
+        let usedCalc = false;
         code = code.split(';');
+        if(code.length < 4 && code[0].match(/^\[(>|<|=|>=|<=|<>)\d+\]/)) {
+            usedCalc = true;
+            // 使用了条件表达式
+            matchFunc = [
+                function(value) {
+                    let temp = code[0].match(/^\[(>|<|=|>=|<=|<>)(\d+)\]/);
+                    if(temp[1] === '=') {
+                        temp[1] = '==';
+                    }
+                    return eval((parseFloat(value).toString() === value.toString() && parseFloat(value)).toString() + temp[1] + temp[2]);
+                },
+                function(value) {
+                    if(code[1].match(/^\[(>|<|=|>=|<=|<>)\d+\]/)) {
+                        let temp = code[1].match(/^\[(>|<|=|>=|<=|<>)(\d+)\]/);
+                        if(temp[1] === '=') {
+                            temp[1] = '==';
+                        }
+                        return eval((parseFloat(value).toString() === value.toString() && parseFloat(value)).toString() + temp[1] + temp[2]);
+                    } else {
+                        return true;
+                    }
+                },
+                function() {
+                    return true;
+                }
+            ];
+        }
         if(code.length === 3) {
             code[3] = '@';
         } else if(code.length === 2) {
@@ -65,18 +108,12 @@
             code[1] = '-' + code[0];
         }
 
-        if(value === 0 || value === '0' || value === '-0') {
-            code = code[2];
-        } else if(parseFloat(value).toString() === value.toString()) {
-            if(parseFloat(value) < 0) {
-                code = code[1];
-            } else {
-                code = code[0];
+        for (let i in matchFunc) {
+            if(matchFunc[i](value)) {
+                code = code[i];
+                break;
             }
-        } else {
-            code = code[3];
         }
-
 
         //console.log(value);
         // 遇到 % 乘以 100
@@ -113,7 +150,6 @@
         }
 
         value = value.toString();
-        let oldValue = value;
         //是否是分数表达式
         var isFenShuwei = false;//是否是分数
         if(code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/(.*[^*|\\|_])\/[^\d|#|0|\?]*?([\d|#|0|\?]+)/) !== null) {   //如果是分数表达式
@@ -155,7 +191,6 @@
         let finishedNumCount = 0;// 已经跑完的数字位置
         let styleColor = '';
         while (code.length > 0) {
-            // console.log('.');
             temp = code[0];
             if(temp === '_') {
                 returnHtml += '<span style="opacity: 0">' + code[1] + '</span>';
@@ -169,7 +204,7 @@
                 code = code.slice(2);
             } else if(temp === '[') {
                 code = code.slice(1);
-                let [, type] = code.match(/^(.+)\]/);
+                let [, type] = code.match(/^([^\]]+)\]/);
                 let styleColorList = {
                     '红色': 'red',
                     '黑色': 'black',
@@ -201,7 +236,7 @@
                     if(value.length > 1) { //有小数部分
                         if(value[0] === 0) {    //数字是小于1的
                             value[0] = '';
-                            var ppp = 0;
+                            let ppp = 0;
                             while (ppp++ < 100) {
                                 if(value[1][0] !== '0') {
                                     value[0] += value[1][0];
@@ -336,6 +371,10 @@
             }
         }
         returnValue[2] = returnHtml;
+        // 如果只配置了规则或者颜色，等于默认填充了值
+        if((usedCalc || styleColor) && returnHtml === '') {
+            returnValue[2] = oldValue;
+        }
         if(styleColor !== '') {
             returnValue[3] = styleColor;
         }
@@ -396,6 +435,8 @@
     test('#,###', 12000, '12,000');
     test('#,###', 1200000, '1,200,000');
     test('#,', 100000, '100');
+    test('$00000', 1, '$00001');
+    test('$00000', -1, '-$00001');
     test('#,', 1000000, '1,000');
     test('#,,', 1000000, '1');
     test('#,"k"', 123123, '123k');
@@ -412,7 +453,10 @@
     test('#"人民币"', '123123', '123123人民币');
     test('[蓝色]#.00', '0.123', '<span class="vue-format-singlevue-format-single-color-blue">0.12</span>');// wrong
     test('[蓝色]¥*-0', '1', '<span class="vue-format-single vue-format-single-color-blue"><span>¥</span><span class="vue-format-single-fill">-</span><span>1</span></span>');
-    // test('[>1]"上升";[=1]"持平";"下降"', '1.2', '上升');
-    // test('[>1]"上升";[=1]"持平";"下降"', '1', '持平');
+    test('[>1]"上升";[=1]"持平";"下降"', '1.2', '上升');
+    test('[>=1]"上升";[=1]"持平";"下降"', '1', '上升');
+    test('[>1][绿色];[=1][黄色];[红色]', 1.2, '<span class="vue-format-singlevue-format-single-color-green">1.2</span>');
+    test('[>1][绿色];[=1][黄色];[红色]', 1, '<span class="vue-format-singlevue-format-single-color-yellow">1</span>');
+    test('[>1][绿色];[=1][黄色];[红色]', 0.8, '<span class="vue-format-singlevue-format-single-color-red">0.8</span>');
 
 }());
