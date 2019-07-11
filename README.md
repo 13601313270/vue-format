@@ -1,4 +1,6 @@
-![image](/uploads/1cf00b2c49c18a8bc8b023153b774ca5/image.png)
+![image](https://raw.githubusercontent.com/13601313270/vue-format/master/Document/image.png)
+
+
 用过excel格式设置的人，都了解excel格式定义功能的强大，几乎所有想要的格式，都可以设置，这个vue扩展移植了excel的功能，可以在页面上方便的扩展显示格式。
 使用方法如下：
 ```
