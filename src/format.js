@@ -167,8 +167,8 @@ export default function(code, value) {
                 '绿色': 'green',
                 '白色': 'white',
                 '蓝色': 'blue',
-                '青色': 'Cyan',
-                '洋红': 'Magenta',
+                '青色': 'cyan',
+                '洋红': 'magenta',
             };
             if(Object.keys(styleColorList).includes(type)) {
                 styleColor = styleColorList[type];

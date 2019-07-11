@@ -9,6 +9,39 @@
     flex-shrink: 0;
 }
 
+.vue-format-single-color-red {
+    color: red;
+}
+
+.vue-format-single-color-black {
+    color: black;
+}
+
+.vue-format-single-color-yellow {
+    color: yellow;
+}
+
+.vue-format-single-color-green {
+    color: green;
+}
+
+.vue-format-single-color-white {
+    color: white;
+}
+
+.vue-format-single-color-blue {
+    color: blue;
+}
+
+.vue-format-single-color-cyan {
+    color: cyan;
+}
+
+.vue-format-single-color-magenta {
+    color: rmagentaed;
+}
+
+
 .vue-format-single-fill {
     flex-grow: 1;
     flex-shrink: 1;
