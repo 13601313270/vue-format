@@ -1,0 +1,15 @@
+.vue-format-single {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.vue-format-single > * {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.vue-format-single-fill {
+    flex-grow: 1;
+    flex-shrink: 1;
+}

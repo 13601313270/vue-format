@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Used in projects, in accordance with Excel custom format rules.",
   "main": "src/main.js",
-  "scripts": {},
+  "scripts": {
+    "test": "rollup -c && node dist/bundle.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/13601313270/vue-format.git"

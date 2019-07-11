@@ -1,6 +1,35 @@
 import getNearFenshu from "./similarFraction";
 
 export default function(code, value) {
+    code = code.split(';');
+    if(code.length === 3) {
+        code[3] = '@';
+    } else if(code.length === 2) {
+        code[3] = '@';
+        code[2] = code[0];
+    } else if(code.length === 1) {
+        if(code[0].includes('@')) {
+            code[3] = code[0];
+        } else {
+            code[3] = '@';
+        }
+        code[2] = code[0];
+        code[1] = '-' + code[0];
+    }
+
+    if(value === 0 || value === '0' || value === '-0') {
+        code = code[2];
+    } else if(parseFloat(value).toString() === value.toString()) {
+        if(parseFloat(value) < 0) {
+            code = code[1];
+        } else {
+            code = code[0];
+        }
+    } else {
+        code = code[3];
+    }
+
+
     //console.log(value);
     // 遇到 % 乘以 100
     if(code.match(/[^*|\\|_]%/) !== null && value.toString().match(/^-?\d+(\.\d+)?$/)) {
@@ -30,7 +59,7 @@ export default function(code, value) {
         codeXiaoshuNumCount = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/\.(([#|0|\?](\\\.|[^#|0|\.])*)+)/)[1].match(/([#|0|\?])/g).length;
     } else {
         // code没有小数部分，直接四舍五入
-        if(value instanceof Number) {
+        if(typeof value === 'number') {
             value = Math.round(value);
         }
     }
@@ -78,7 +107,9 @@ export default function(code, value) {
     let returnValue = ['', '', ''];
     let returnHtml = '';
     let finishedNumCount = 0;// 已经跑完的数字位置
+    let styleColor = '';
     while (code.length > 0) {
+        // console.log('.');
         temp = code[0];
         if(temp === '_') {
             returnHtml += '<span style="opacity: 0">' + code[1] + '</span>';
@@ -91,12 +122,29 @@ export default function(code, value) {
             returnHtml = '';
             code = code.slice(2);
         } else if(temp === '[') {
-            if(code.match(/^\[\$(\S)-804\]/)) {
-                var findStr = code.match(/^\[\$(\S)-804\]/)[1];
-                code = code.replace(/^\[\$\S-804\]/, '');
+            code = code.slice(1);
+            let [, type] = code.match(/^(.+)\]/);
+            let styleColorList = {
+                '红色': 'red',
+                '黑色': 'black',
+                '黄色': 'yellow',
+                '绿色': 'green',
+                '白色': 'white',
+                '蓝色': 'blue',
+                '青色': 'Cyan',
+                '洋红': 'Magenta',
+            };
+            if(Object.keys(styleColorList).includes(type)) {
+                styleColor = styleColorList[type];
+                returnHtml += '';
+            } else if(code.match(/^\[\$(\S)-804\]/)) {
+                let findStr = code.match(/^\[\$(\S)-804\]/)[1];
+                code = code.replace(/^\[\$(\S)-804\]/, '');
                 returnHtml += findStr;
             } else {
+
             }
+            code = code.slice(type.length + 1);
         } else if(temp === '#' || temp === '0' || temp === '?') {
             if(code.match(/^([#|0]+)\.([#|0]+)E\+([#|0]+)/)) {  // 科学计数法
                 let match = code.match(/^([#|0]+)\.([#|0]+)E\+([#|0]+)/);
@@ -164,7 +212,6 @@ export default function(code, value) {
                         if(finishedNumCount > codeZhengshuNumCount + codeXiaoshuNumCount - 1) {//进入分母区间了
                             let oldReturnHtml = returnHtml;
                             if(fenmu.toString()[finishedNumCount - codeZhengshuNumCount - codeXiaoshuNumCount]) {
-                                console.log(fenmu);
                                 returnHtml += fenmu.toString();//[finishedNumCount - codeZhengshuNumCount - codeXiaoshuNumCount];
                             } else if(temp === '0') {
                                 returnHtml += '0';
@@ -248,5 +295,8 @@ export default function(code, value) {
         }
     }
     returnValue[2] = returnHtml;
+    if(styleColor !== '') {
+        returnValue[3] = styleColor;
+    }
     return returnValue;
 }

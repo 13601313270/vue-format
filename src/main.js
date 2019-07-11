@@ -1,4 +1,6 @@
-import format from 'format';
+import format from './format';
+import encodeHtml from './encodeHtml';
+import './fillCharacter.css';
 
 function bindVueFunc(el, binding, vnode) {
     let value = vnode.test;//vnode.data.attrs.value;
@@ -6,7 +8,7 @@ function bindVueFunc(el, binding, vnode) {
         value = vnode.children[0].text;
     }
     let returnValue = format(binding.value, value);
-    el.innerHTML = returnValue.join('');
+    el.innerHTML = encodeHtml(returnValue);
 }
 
 export default {

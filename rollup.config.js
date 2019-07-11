@@ -1,7 +1,7 @@
 export default {
-    input: 'src/main.js',
+    input: 'src/autoTest.js',
     output: {
         file: 'dist/bundle.js',
-        format: 'es'
+        format: 'iife'
     }
 };
