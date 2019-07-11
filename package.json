@@ -1,0 +1,23 @@
+{
+  "name": "vue-format",
+  "version": "1.0.0",
+  "description": "Used in projects, in accordance with Excel custom format rules.",
+  "main": "index.js",
+  "scripts": {
+    "test": "vue format"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/13601313270/vue-format.git"
+  },
+  "keywords": [
+    "vue",
+    "format"
+  ],
+  "author": "WangHaoran",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/13601313270/vue-format/issues"
+  },
+  "homepage": "https://github.com/13601313270/vue-format#readme"
+}
