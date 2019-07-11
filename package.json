@@ -1,10 +1,12 @@
 {
-  "name": "vue-format",
+  "name": "vue-text-format",
   "version": "1.0.0",
   "description": "Used in projects, in accordance with Excel custom format rules.",
   "main": "index.js",
   "scripts": {
-    "test": "vue format"
+    "test": "vue format",
+    "start": "webpack",
+    "serve": "webpack-dev-server --open"
   },
   "repository": {
     "type": "git",
@@ -19,5 +21,14 @@
   "bugs": {
     "url": "https://github.com/13601313270/vue-format/issues"
   },
-  "homepage": "https://github.com/13601313270/vue-format#readme"
+  "homepage": "https://github.com/13601313270/vue-format#readme",
+  "devDependencies": {
+    "@babel/core": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
+    "@babel/preset-es2015": "^7.0.0-beta.53",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.5",
+    "webpack-dev-server": "^3.7.2"
+  }
 }
