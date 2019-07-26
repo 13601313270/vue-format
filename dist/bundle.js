@@ -378,7 +378,8 @@
                         } else {
                             //真实数字精度大于格式小数精度,则进行四舍五入
                             if(finishedNumCount === codeZhengshuNumCount && value.length === 2 && value[1].length > codeXiaoshuNumCount) {
-                                let fixed = Math.round(value[1].slice(0, codeXiaoshuNumCount) + '.' + value[1].slice(codeXiaoshuNumCount));
+                                // 前面添加一个1，后面再删除，是为了防止第一位是0，造成的省略
+                                let fixed = Math.round('1' + value[1].slice(0, codeXiaoshuNumCount) + '.' + value[1].slice(codeXiaoshuNumCount)).toString().slice(1);
                                 value[1] = parseFloat('0.' + fixed).toFixed(codeXiaoshuNumCount).split('.')[1];
                             }
                             if(value.length === 2 && value[1].length > finishedNumCount - codeZhengshuNumCount) {
@@ -487,6 +488,7 @@
     console.log('开始运行测试用例');
     test('###.##', 12.1263, '12.13');
     test('###.##', -12.1263, '-12.13');
+    test('##.##', 30.015, '30.02');
     test('##.??', 12.123456, '12.12');
     test('##.??-??-??', 12.123456, '12.12-34-56');
     test('##.??-??-?????', 12.123456, '12.12-34-56   ');
