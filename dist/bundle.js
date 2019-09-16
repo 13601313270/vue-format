@@ -130,7 +130,7 @@
             function(value) {
                 return value === 0 || value === '0' || value === '-0';
             },
-            function(value) {
+            function() {
                 return true;
             }
         ];
@@ -195,6 +195,8 @@
         let codeZhengshuNumCount = 0;
         //自定义格式中小数部分占位符个数
         let codeXiaoshuNumCount = 0;
+        // 是否全部小数位都是有效占位符#
+        let allEffectivePlaceholder = true;
         //.match(/\.(([#|0](\\\.|[^#|0|\.])*)+)/)[1]
         if(code.match(/(([#|0|\?](\\\.|[^#|0|\.])*)+)\.?/) !== null) {
             let temp = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/(([#|0|\?](\\\.|[^#|0|\.])*)+)\.?/);
@@ -210,8 +212,17 @@
                 value = value / Math.pow(1000, endQianfenwei[1].length);
             }
         }
-        if(code.match(/\.(([#|0|\?](\\\.|[^#|0|\.])*)+)/) !== null) {
-            codeXiaoshuNumCount = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/\.(([#|0|\?](\\\.|[^#|0|\.])*)+)/)[1].match(/([#|0|\?])/g).length;
+        if(code.match(/\.(([#|0|\?]?(\\\.|[^#|0|\.])*)+)/) !== null) {
+            let xiaoshuCode = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/\.(([#|0|\?]?(\\\.|[^#|0|\.])*)+)/)[1];
+            let xiaoshuNumSlot = xiaoshuCode.match(/([#|0|\?])/g);
+            if(xiaoshuCode.match(/^#+$/) === null) {
+                allEffectivePlaceholder = false;
+            }
+            if(xiaoshuNumSlot === null) {
+                codeXiaoshuNumCount = 0;
+            } else {
+                codeXiaoshuNumCount = xiaoshuNumSlot.length;
+            }
         } else {
             // code没有小数部分，直接四舍五入
             if(typeof value === 'number') {
@@ -436,6 +447,18 @@
                 code = code.slice(2);
             } else if(temp === ',') {
                 code = code.slice(1);
+            } else if(temp === '.') {
+                if(allEffectivePlaceholder) {
+                    // 如果小数点后面都是#，而且遇到了整数，则判断小数点是无效的
+                    // ##.## 遇到【3】，最终显示【 3 】，而不是【 3. 】
+                    if(value[1]) {
+                        returnHtml += temp;
+                    }
+                } else {
+                    returnHtml += temp;
+                }
+
+                code = code.slice(1);
             } else {
                 returnHtml += temp;
                 code = code.slice(1);
@@ -480,13 +503,20 @@
             // console.log(runResult);
         } else {
             console.log('==========');
-            console.log(code, value);
-            console.log(runResult, format(code, value), result);
+            console.log(code, value, runResult);
         }
     }
 
     console.log('开始运行测试用例');
+    test('###.##', 3, '3');
+    test('###.#^#', 3, '3.^');
+    test('###.^', 3, '3.^');
+    test('###.??', 3, '3.  ');
+    test('###.###0', 3, '3.0');
     test('###.##', 12.1263, '12.13');
+    test('##.^##^##^###', 3.1234567811, '3.^12^34^568');
+    test('##.##^##^###', 3.1234567811, '3.12^34^568');
+    test('##.##^##^##', 3.1, '3.1^^');
     test('###.##', -12.1263, '-12.13');
     test('##.##', 30.015, '30.02');
     test('##.??', 12.123456, '12.12');
@@ -512,8 +542,6 @@
 
 
     test('¥#,##0.00', 1200000, '¥1,200,000.00');
-
-
 
 
     test('#,', 100000, '100');

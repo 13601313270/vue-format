@@ -13,7 +13,7 @@ export default function(code, value) {
         function(value) {
             return value === 0 || value === '0' || value === '-0';
         },
-        function(value) {
+        function() {
             return true;
         }
     ];
@@ -78,6 +78,8 @@ export default function(code, value) {
     let codeZhengshuNumCount = 0;
     //自定义格式中小数部分占位符个数
     let codeXiaoshuNumCount = 0;
+    // 是否全部小数位都是有效占位符#
+    let allEffectivePlaceholder = true;
     //.match(/\.(([#|0](\\\.|[^#|0|\.])*)+)/)[1]
     if(code.match(/(([#|0|\?](\\\.|[^#|0|\.])*)+)\.?/) !== null) {
         let temp = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/(([#|0|\?](\\\.|[^#|0|\.])*)+)\.?/);
@@ -93,8 +95,17 @@ export default function(code, value) {
             value = value / Math.pow(1000, endQianfenwei[1].length);
         }
     }
-    if(code.match(/\.(([#|0|\?](\\\.|[^#|0|\.])*)+)/) !== null) {
-        codeXiaoshuNumCount = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/\.(([#|0|\?](\\\.|[^#|0|\.])*)+)/)[1].match(/([#|0|\?])/g).length;
+    if(code.match(/\.(([#|0|\?]?(\\\.|[^#|0|\.])*)+)/) !== null) {
+        let xiaoshuCode = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/\.(([#|0|\?]?(\\\.|[^#|0|\.])*)+)/)[1];
+        let xiaoshuNumSlot = xiaoshuCode.match(/([#|0|\?])/g);
+        if(xiaoshuCode.match(/^#+$/) === null) {
+            allEffectivePlaceholder = false;
+        }
+        if(xiaoshuNumSlot === null) {
+            codeXiaoshuNumCount = 0;
+        } else {
+            codeXiaoshuNumCount = xiaoshuNumSlot.length;
+        }
     } else {
         // code没有小数部分，直接四舍五入
         if(typeof value === 'number') {
@@ -325,6 +336,18 @@ export default function(code, value) {
             returnHtml += code[1];
             code = code.slice(2);
         } else if(temp === ',') {
+            code = code.slice(1);
+        } else if(temp === '.') {
+            if(allEffectivePlaceholder) {
+                // 如果小数点后面都是#，而且遇到了整数，则判断小数点是无效的
+                // ##.## 遇到【3】，最终显示【 3 】，而不是【 3. 】
+                if(value[1]) {
+                    returnHtml += temp;
+                }
+            } else {
+                returnHtml += temp;
+            }
+
             code = code.slice(1);
         } else {
             returnHtml += temp;
