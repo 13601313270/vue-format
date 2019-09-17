@@ -98,7 +98,7 @@ export default function(code, value) {
     if(code.match(/\.(([#|0|\?]?(\\\.|[^#|0|\.])*)+)/) !== null) {
         let xiaoshuCode = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/\.(([#|0|\?]?(\\\.|[^#|0|\.])*)+)/)[1];
         let xiaoshuNumSlot = xiaoshuCode.match(/([#|0|\?])/g);
-        if(xiaoshuCode.match(/^#+$/) === null) {
+        if(xiaoshuCode.match(/^#+%?$/) === null) {
             allEffectivePlaceholder = false;
         }
         if(xiaoshuNumSlot === null) {
