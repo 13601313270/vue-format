@@ -112,11 +112,10 @@ export default function(code, value) {
             value = Math.round(value);
         }
     }
-
-    value = value.toString();
     //是否是分数表达式
-    var isFenShuwei = false;//是否是分数
+    let isFenShuwei = false;//是否是分数
     if(code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/(.*[^*|\\|_])\/[^\d|#|0|\?]*?([\d|#|0|\?]+)/) !== null) {   //如果是分数表达式
+        value = oldValue;
         let tempFenshuMatch = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/(.*[^*|\\|_])\/[^\d|#|0|\?]*?([\d|#|0|\?]+)/);
         let isHasZhengshu = tempFenshuMatch[1].match(/([#|0\?]+[^#|0\?]*)/g);
         var fenmu = tempFenshuMatch[2];
@@ -136,19 +135,21 @@ export default function(code, value) {
 
         }
 
+
         let runValue = parseInt((parseInt(value * fenmu * 2) + 1) / 2).toString();
         if(isHasZhengshu.length >= 2) {
             value = [parseInt(runValue / fenmu).toString(), (runValue % fenmu).toString()];
         }
-
         if(isHasZhengshu.length >= 2) {
             codeZhengshuNumCount = isHasZhengshu[0].match(/([#|0\?])[^#|0\?]*/g).length;
             codeXiaoshuNumCount = isHasZhengshu[1].match(/([#|0\?])[^#|0\?]*/g).length;
         } else {
-            value = [runValue];
+            codeZhengshuNumCount = 0;
+            codeXiaoshuNumCount = isHasZhengshu[0].length;
+            value = [0, runValue];
         }
     } else {
-        value = value.split('.');
+        value = value.toString().split('.');
     }
     value[0] = Math.abs(value[0]).toString();
     let temp = '';
@@ -267,14 +268,20 @@ export default function(code, value) {
                             }
                             code = code.slice(returnHtml.length - oldReturnHtml.length);
                         } else {
-                            if(value.length === 2 && finishedNumCount - codeZhengshuNumCount > codeXiaoshuNumCount - value[1].length - 1) {
-                                returnHtml += value[1][value[1].length - codeXiaoshuNumCount + finishedNumCount - codeZhengshuNumCount];
-                            } else if(temp === '0') {
-                                returnHtml += '0';
-                            } else if(temp === '?') {
-                                returnHtml += ' ';
+                            if(value.length === 2 && value[1].length > codeXiaoshuNumCount) {
+                                returnHtml += value[1];
+                                code = code.slice(codeXiaoshuNumCount);
+                            } else {
+                                if(value.length === 2 && finishedNumCount - codeZhengshuNumCount > codeXiaoshuNumCount - value[1].length - 1) {
+                                    returnHtml += value[1][value[1].length - codeXiaoshuNumCount + finishedNumCount - codeZhengshuNumCount];
+                                } else if(temp === '0') {
+                                    returnHtml += '0';
+                                } else if(temp === '?') {
+                                    returnHtml += ' ';
+                                }
+                                code = code.slice(1);
                             }
-                            code = code.slice(1);
+
                         }
                     } else {
                         //真实数字精度大于格式小数精度,则进行四舍五入

@@ -1,6 +1,6 @@
 export default function(num, wei) {
     let numList = num.toString().split('.');
-    num = '0.' + numList[1];
+    num = parseFloat('0.' + numList[1]);
     let nearHalf = [0, 1];
 
     for (let fenmu = 1; fenmu < Math.pow(10, wei); fenmu++) {

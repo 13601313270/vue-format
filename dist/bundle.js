@@ -3,7 +3,7 @@
 
     function getNearFenshu(num, wei) {
         let numList = num.toString().split('.');
-        num = '0.' + numList[1];
+        num = parseFloat('0.' + numList[1]);
         let nearHalf = [0, 1];
 
         for (let fenmu = 1; fenmu < Math.pow(10, wei); fenmu++) {
@@ -229,11 +229,10 @@
                 value = Math.round(value);
             }
         }
-
-        value = value.toString();
         //是否是分数表达式
-        var isFenShuwei = false;//是否是分数
+        let isFenShuwei = false;//是否是分数
         if(code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/(.*[^*|\\|_])\/[^\d|#|0|\?]*?([\d|#|0|\?]+)/) !== null) {   //如果是分数表达式
+            value = oldValue;
             let tempFenshuMatch = code.replace(/[*|\\|_]{2}/g, '').replace(/[*|\\|_]([#|0|\?])/g, '').match(/(.*[^*|\\|_])\/[^\d|#|0|\?]*?([\d|#|0|\?]+)/);
             let isHasZhengshu = tempFenshuMatch[1].match(/([#|0\?]+[^#|0\?]*)/g);
             var fenmu = tempFenshuMatch[2];
@@ -251,19 +250,21 @@
                 fenmu = temp[1];
             }
 
+
             let runValue = parseInt((parseInt(value * fenmu * 2) + 1) / 2).toString();
             if(isHasZhengshu.length >= 2) {
                 value = [parseInt(runValue / fenmu).toString(), (runValue % fenmu).toString()];
             }
-
             if(isHasZhengshu.length >= 2) {
                 codeZhengshuNumCount = isHasZhengshu[0].match(/([#|0\?])[^#|0\?]*/g).length;
                 codeXiaoshuNumCount = isHasZhengshu[1].match(/([#|0\?])[^#|0\?]*/g).length;
             } else {
-                value = [runValue];
+                codeZhengshuNumCount = 0;
+                codeXiaoshuNumCount = isHasZhengshu[0].length;
+                value = [0, runValue];
             }
         } else {
-            value = value.split('.');
+            value = value.toString().split('.');
         }
         value[0] = Math.abs(value[0]).toString();
         let temp = '';
@@ -377,14 +378,20 @@
                                 }
                                 code = code.slice(returnHtml.length - oldReturnHtml.length);
                             } else {
-                                if(value.length === 2 && finishedNumCount - codeZhengshuNumCount > codeXiaoshuNumCount - value[1].length - 1) {
-                                    returnHtml += value[1][value[1].length - codeXiaoshuNumCount + finishedNumCount - codeZhengshuNumCount];
-                                } else if(temp === '0') {
-                                    returnHtml += '0';
-                                } else if(temp === '?') {
-                                    returnHtml += ' ';
+                                if(value.length === 2 && value[1].length > codeXiaoshuNumCount) {
+                                    returnHtml += value[1];
+                                    code = code.slice(codeXiaoshuNumCount);
+                                } else {
+                                    if(value.length === 2 && finishedNumCount - codeZhengshuNumCount > codeXiaoshuNumCount - value[1].length - 1) {
+                                        returnHtml += value[1][value[1].length - codeXiaoshuNumCount + finishedNumCount - codeZhengshuNumCount];
+                                    } else if(temp === '0') {
+                                        returnHtml += '0';
+                                    } else if(temp === '?') {
+                                        returnHtml += ' ';
+                                    }
+                                    code = code.slice(1);
                                 }
-                                code = code.slice(1);
+
                             }
                         } else {
                             //真实数字精度大于格式小数精度,则进行四舍五入
@@ -535,24 +542,6 @@
     test('#,###', 12000, '12,000');
     test('#,###', 1200000, '1,200,000');
     test('0.00%', 3, '300.00%');
-
-
-
-
-    test('0.#', 11.23, '11.2');
-    test('0.#', 11, '11');
-    test('0.00', 3, '3.00');
-    test('0.##', 3, '3');
-    test('0.00%', 3, '300.00%');
-    test('0.##%', 3, '300%');
-
-
-
-
-
-
-
-
     test('###.##%', 3, '300%');
     test('###.##', 3, '3');
     test('###.#^#', 3, '3.^');
@@ -569,6 +558,15 @@
     test('0,.#', 12345, '12.3');
     test('0,.#', -12345, '-12.3');
     test('#.00,', 12345, '12.35');
+    // 分数
+    test('??/??', 0.28, ' 7/25');
+    test('00/??', 0.28, '07/25');
+    test('??/??', 1.28, '32/25');
+    test('?/??', 1.28, '32/25');
+    test('?/?', 0.28, '2/7');
+    test('# ??/??', 1.28, '1  7/25');
+    test('# ??/??', 0.28, '  7/25');
+
     test('"人民币 "#,##0,,"百万"', 1234567890, '人民币 1,235百万');
     test('"集团"@"部"', '财务', '集团财务部');
     test('@@@', '财务', '财务财务财务');
