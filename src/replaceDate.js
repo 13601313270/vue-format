@@ -1,7 +1,7 @@
 export default function(creatVal, value) {
     if(value.toString().match(/(\d{10})/) || value.toString().match(/(\d{13})/)) {
         let date = new Date();
-        if(value.toString().match(/(\d{10})/)) {
+        if(value.toString().match(/^(\d{10}$)/)) {
             date.setTime(parseInt(value) * 1000);
         } else {
             date.setTime(parseInt(value));
