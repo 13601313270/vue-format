@@ -22,5 +22,8 @@
   "homepage": "https://github.com/13601313270/vue-format#readme",
   "devDependencies": {
     "rollup": "^1.16.7"
+  },
+  "dependencies": {
+    "typescript": "^3.6.3"
   }
 }
