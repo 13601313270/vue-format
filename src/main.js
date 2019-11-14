@@ -21,6 +21,8 @@ export default {
             // 当被绑定的元素插入到 DOM 中时……
             update: bindVueFunc
         });
-        Vue.prototype.textFormat = format;
+        Vue.prototype.textFormat = (value, code) => {
+            return format(code, value).join('');
+        };
     }
 }
