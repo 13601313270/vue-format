@@ -8,13 +8,34 @@
 ## 使用方法
 ### 安装
 npm install vue-text-format
+
+在入口文件引用插件main.js
 ```
 import Vue from 'vue'
+
+
 import format from 'vue-text-format';
 Vue.use(format);
 ```
 ### 使用
-通过v-format传入想要转换的格式，我们通过几个例子，让你了解一下这个格式代码功能到底有多全多强大
+方式1：指令v-format
+通过v-format传入想要转换的格式
+```html
+<div v-format="'0.##%'">0.123</div>
+```
+
+方式2：函数调用，vue原型上绑定了一个textFormat函数
+```javascript
+export default {
+    name: 'home',
+    mounted() {
+        let newVal = this.textFormat(0.123, '0.##%');
+        // 将获得12.3%
+    }
+}
+```
+### 示例
+我们通过几个例子，让你了解一下这个格式代码功能到底有多全多强大
 ```html
 
 <div v-format="'0.##%'">0.123</div>
