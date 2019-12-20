@@ -74,10 +74,15 @@ test('¥* #', 123123, '<span class="vue-format-single"><span>¥</span><span clas
 test('**', 123123, '<span class="vue-format-single"><span class="vue-format-single-fill">*</span></span>');
 test('#\\元', 123123, '123123元');
 test('#"人民币"', 123123, '123123人民币');
-test('[蓝色]#.00', 0.123, '<span class="vue-format-single vue-format-single-color-blue">0.12</span>');// wrong
+test('[蓝色]#.00', 0.123, '<span class="vue-format-single vue-format-single-color-blue">.12</span>');// wrong
+test('[蓝色]0.00', 0.123, '<span class="vue-format-single vue-format-single-color-blue">0.12</span>');// wrong
 test('[蓝色]¥*-0', 1, '<span class="vue-format-single vue-format-single-color-blue"><span>¥</span><span class="vue-format-single-fill">-</span><span>1</span></span>');
 test('[>1]"上升";[=1]"持平";"下降"', 1.2, '上升');
 test('[>=1]"上升";[=1]"持平";"下降"', 1, '上升');
+test('[>1]"上升";[=1]"持平";"下降"', 1, '持平');
+test('[>1]"上升";[=1]"持平";"下降"', 0.8, '下降');
+test('[<>1]"变动";[=1]"持平";"空"', 1, '持平');
+test('[<>1]"变动";[=1]"持平";"空"', 1.1, '变动');
 test('[>1][绿色];[=1][黄色];[红色]', 1.2, '<span class="vue-format-single vue-format-single-color-green">1.2</span>');
 test('[>1][绿色];[=1][黄色];[红色]', 1, '<span class="vue-format-single vue-format-single-color-yellow">1</span>');
 test('[>1][绿色];[=1][黄色];[红色]', 0.8, '<span class="vue-format-single vue-format-single-color-red">0.8</span>');
@@ -87,3 +92,14 @@ test('YYYY', 1562838244, '2019');
 test('YY', 1562838244, '19');
 test('YY-MM-DD', 1562838244, '19-07-11');
 test('YY-MM-DD HH:mm:ss', 1562838244, '19-07-11 17:44:04');
+test('00000,000', 1111, '00,001,111');
+test('00000,000', 111, '00,000,111');
+// // 支持科学技术法格式的数字
+test('0.####', 9.568181142949328e-7, '0');
+test('###.??', 9.568181142949328e-7, '.  ');
+test('###.######', 9.568181142949328e-7, '.000001');
+test('###.#######', 9.568181142949328e-7, '.000001');
+test('###.########', 9.568181142949328e-7, '.00000096');
+test('###.####', 9.568181142949328e-7, '');
+test('##0.0000', 9.568181142949328e-7, '0.0000');
+test('###.0000', 9.568181142949328e-7, '.0000');

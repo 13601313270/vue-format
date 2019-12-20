@@ -28,7 +28,20 @@ export default function(code, value) {
                 if(temp[1] === '=') {
                     temp[1] = '==';
                 }
-                return eval((parseFloat(value).toString() === value.toString() && parseFloat(value)).toString() + temp[1] + temp[2]);
+                switch (temp[1]) {
+                    case '>':
+                        return parseFloat(value) > parseFloat(temp[2]);
+                    case '<':
+                        return parseFloat(value) < parseFloat(temp[2]);
+                    case '>=':
+                        return parseFloat(value) >= parseFloat(temp[2]);
+                    case '<=':
+                        return parseFloat(value) <= parseFloat(temp[2]);
+                    case '<>':
+                        return parseFloat(value) !== parseFloat(temp[2]);
+                    case '==':
+                        return parseFloat(value) === parseFloat(temp[2]);
+                }
             },
             function(value) {
                 if(code[1].match(/^\[(>|<|=|>=|<=|<>)\d+\]/)) {
@@ -36,7 +49,20 @@ export default function(code, value) {
                     if(temp[1] === '=') {
                         temp[1] = '==';
                     }
-                    return eval((parseFloat(value).toString() === value.toString() && parseFloat(value)).toString() + temp[1] + temp[2]);
+                    switch (temp[1]) {
+                        case '>':
+                            return parseFloat(value) > parseFloat(temp[2]);
+                        case '<':
+                            return parseFloat(value) < parseFloat(temp[2]);
+                        case '>=':
+                            return parseFloat(value) >= parseFloat(temp[2]);
+                        case '<=':
+                            return parseFloat(value) <= parseFloat(temp[2]);
+                        case '<>':
+                            return parseFloat(value) !== parseFloat(temp[2]);
+                        case '==':
+                            return parseFloat(value) === parseFloat(temp[2]);
+                    }
                 } else {
                     return true;
                 }
@@ -68,7 +94,6 @@ export default function(code, value) {
         }
     }
 
-    //console.log(value);
     // 遇到 % 乘以 100
     if(code.match(/[^*|\\|_]%/) !== null && value.toString().match(/^-?\d+(\.\d+)?$/)) {
         value = value * 100;
@@ -149,7 +174,16 @@ export default function(code, value) {
             value = [0, runValue];
         }
     } else {
+        // 如果是一个极小的数字，例如9.568181142949328e-7
+        let e = value.toString().match(/e([+|-])(\d+)$/);
         value = value.toString().split('.');
+        if(e) {
+            if(e[1] === '-') {
+                if(e[2] > 0) {
+                    value = ['0', Array(e[2] - 1).fill(0).join('') + value[0] + value[1].replace(/e-(\d+)$/, '')]
+                }
+            }
+        }
     }
     value[0] = Math.abs(value[0]).toString();
     let temp = '';
@@ -284,12 +318,6 @@ export default function(code, value) {
 
                         }
                     } else {
-                        //真实数字精度大于格式小数精度,则进行四舍五入
-                        if(finishedNumCount === codeZhengshuNumCount && value.length === 2 && value[1].length > codeXiaoshuNumCount) {
-                            // 前面添加一个1，后面再删除，是为了防止第一位是0，造成的省略
-                            let fixed = Math.round('1' + value[1].slice(0, codeXiaoshuNumCount) + '.' + value[1].slice(codeXiaoshuNumCount)).toString().slice(1);
-                            value[1] = parseFloat('0.' + fixed).toFixed(codeXiaoshuNumCount).split('.')[1];
-                        }
                         if(value.length === 2 && value[1].length > finishedNumCount - codeZhengshuNumCount) {
                             returnHtml += value[1][finishedNumCount - codeZhengshuNumCount];
                         } else if(temp === '0') {
@@ -309,7 +337,7 @@ export default function(code, value) {
                             }
                         }
                     }
-                    if(isFenShuwei && value[0] === '0') {
+                    if(value[0] === '0') {
                         if(temp === '0') {
                             returnHtml += '0';
                         } else if(temp === '?') {
@@ -317,6 +345,8 @@ export default function(code, value) {
                         }
                     } else {
                         returnHtml += value[0][value[0].length + finishedNumCount - codeZhengshuNumCount];
+                    }
+                    if(!(isFenShuwei && value[0] === '0')) {
                         if(isQianfenwei && (codeZhengshuNumCount - finishedNumCount) % 3 === 1 && codeZhengshuNumCount - finishedNumCount !== 1) {
                             returnHtml += ',';
                         }
@@ -327,6 +357,9 @@ export default function(code, value) {
                         returnHtml += '0';
                     } else if(temp === '?') {
                         returnHtml += ' ';
+                    }
+                    if(isQianfenwei && (codeZhengshuNumCount - finishedNumCount) % 3 === 1 && codeZhengshuNumCount - finishedNumCount !== 1) {
+                        returnHtml += ',';
                     }
                     code = code.slice(1);
                 }
@@ -345,6 +378,15 @@ export default function(code, value) {
         } else if(temp === ',') {
             code = code.slice(1);
         } else if(temp === '.') {
+            //真实数字精度大于格式小数精度,则进行四舍五入
+            if(finishedNumCount === codeZhengshuNumCount && value.length === 2 && value[1].length > codeXiaoshuNumCount) {
+                // 前面添加一个1，后面再删除，是为了防止第一位是0，造成的省略
+                let fixed = Math.round('1' + value[1].slice(0, codeXiaoshuNumCount) + '.' + value[1].slice(codeXiaoshuNumCount)).toString().slice(1);
+                value[1] = parseFloat('0.' + fixed).toFixed(codeXiaoshuNumCount).split('.')[1].replace(/0+$/, '');
+                if(value[1].match(/^0+$/) !== null) {
+                    value = [value[0]];
+                }
+            }
             if(allEffectivePlaceholder) {
                 // 如果小数点后面都是#，而且遇到了整数，则判断小数点是无效的
                 // ##.## 遇到【3】，最终显示【 3 】，而不是【 3. 】
@@ -354,7 +396,6 @@ export default function(code, value) {
             } else {
                 returnHtml += temp;
             }
-
             code = code.slice(1);
         } else {
             returnHtml += temp;

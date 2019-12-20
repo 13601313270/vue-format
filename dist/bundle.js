@@ -145,7 +145,20 @@
                     if(temp[1] === '=') {
                         temp[1] = '==';
                     }
-                    return eval((parseFloat(value).toString() === value.toString() && parseFloat(value)).toString() + temp[1] + temp[2]);
+                    switch (temp[1]) {
+                        case '>':
+                            return parseFloat(value) > parseFloat(temp[2]);
+                        case '<':
+                            return parseFloat(value) < parseFloat(temp[2]);
+                        case '>=':
+                            return parseFloat(value) >= parseFloat(temp[2]);
+                        case '<=':
+                            return parseFloat(value) <= parseFloat(temp[2]);
+                        case '<>':
+                            return parseFloat(value) !== parseFloat(temp[2]);
+                        case '==':
+                            return parseFloat(value) === parseFloat(temp[2]);
+                    }
                 },
                 function(value) {
                     if(code[1].match(/^\[(>|<|=|>=|<=|<>)\d+\]/)) {
@@ -153,7 +166,20 @@
                         if(temp[1] === '=') {
                             temp[1] = '==';
                         }
-                        return eval((parseFloat(value).toString() === value.toString() && parseFloat(value)).toString() + temp[1] + temp[2]);
+                        switch (temp[1]) {
+                            case '>':
+                                return parseFloat(value) > parseFloat(temp[2]);
+                            case '<':
+                                return parseFloat(value) < parseFloat(temp[2]);
+                            case '>=':
+                                return parseFloat(value) >= parseFloat(temp[2]);
+                            case '<=':
+                                return parseFloat(value) <= parseFloat(temp[2]);
+                            case '<>':
+                                return parseFloat(value) !== parseFloat(temp[2]);
+                            case '==':
+                                return parseFloat(value) === parseFloat(temp[2]);
+                        }
                     } else {
                         return true;
                     }
@@ -185,7 +211,6 @@
             }
         }
 
-        //console.log(value);
         // 遇到 % 乘以 100
         if(code.match(/[^*|\\|_]%/) !== null && value.toString().match(/^-?\d+(\.\d+)?$/)) {
             value = value * 100;
@@ -264,7 +289,16 @@
                 value = [0, runValue];
             }
         } else {
+            // 如果是一个极小的数字，例如9.568181142949328e-7
+            let e = value.toString().match(/e([+|-])(\d+)$/);
             value = value.toString().split('.');
+            if(e) {
+                if(e[1] === '-') {
+                    if(e[2] > 0) {
+                        value = ['0', Array(e[2] - 1).fill(0).join('') + value[0] + value[1].replace(/e-(\d+)$/, '')];
+                    }
+                }
+            }
         }
         value[0] = Math.abs(value[0]).toString();
         let temp = '';
@@ -394,12 +428,6 @@
 
                             }
                         } else {
-                            //真实数字精度大于格式小数精度,则进行四舍五入
-                            if(finishedNumCount === codeZhengshuNumCount && value.length === 2 && value[1].length > codeXiaoshuNumCount) {
-                                // 前面添加一个1，后面再删除，是为了防止第一位是0，造成的省略
-                                let fixed = Math.round('1' + value[1].slice(0, codeXiaoshuNumCount) + '.' + value[1].slice(codeXiaoshuNumCount)).toString().slice(1);
-                                value[1] = parseFloat('0.' + fixed).toFixed(codeXiaoshuNumCount).split('.')[1];
-                            }
                             if(value.length === 2 && value[1].length > finishedNumCount - codeZhengshuNumCount) {
                                 returnHtml += value[1][finishedNumCount - codeZhengshuNumCount];
                             } else if(temp === '0') {
@@ -419,7 +447,7 @@
                                 }
                             }
                         }
-                        if(isFenShuwei && value[0] === '0') {
+                        if(value[0] === '0') {
                             if(temp === '0') {
                                 returnHtml += '0';
                             } else if(temp === '?') {
@@ -427,6 +455,8 @@
                             }
                         } else {
                             returnHtml += value[0][value[0].length + finishedNumCount - codeZhengshuNumCount];
+                        }
+                        if(!(isFenShuwei && value[0] === '0')) {
                             if(isQianfenwei && (codeZhengshuNumCount - finishedNumCount) % 3 === 1 && codeZhengshuNumCount - finishedNumCount !== 1) {
                                 returnHtml += ',';
                             }
@@ -437,6 +467,9 @@
                             returnHtml += '0';
                         } else if(temp === '?') {
                             returnHtml += ' ';
+                        }
+                        if(isQianfenwei && (codeZhengshuNumCount - finishedNumCount) % 3 === 1 && codeZhengshuNumCount - finishedNumCount !== 1) {
+                            returnHtml += ',';
                         }
                         code = code.slice(1);
                     }
@@ -455,6 +488,15 @@
             } else if(temp === ',') {
                 code = code.slice(1);
             } else if(temp === '.') {
+                //真实数字精度大于格式小数精度,则进行四舍五入
+                if(finishedNumCount === codeZhengshuNumCount && value.length === 2 && value[1].length > codeXiaoshuNumCount) {
+                    // 前面添加一个1，后面再删除，是为了防止第一位是0，造成的省略
+                    let fixed = Math.round('1' + value[1].slice(0, codeXiaoshuNumCount) + '.' + value[1].slice(codeXiaoshuNumCount)).toString().slice(1);
+                    value[1] = parseFloat('0.' + fixed).toFixed(codeXiaoshuNumCount).split('.')[1].replace(/0+$/, '');
+                    if(value[1].match(/^0+$/) !== null) {
+                        value = [value[0]];
+                    }
+                }
                 if(allEffectivePlaceholder) {
                     // 如果小数点后面都是#，而且遇到了整数，则判断小数点是无效的
                     // ##.## 遇到【3】，最终显示【 3 】，而不是【 3. 】
@@ -464,7 +506,6 @@
                 } else {
                     returnHtml += temp;
                 }
-
                 code = code.slice(1);
             } else {
                 returnHtml += temp;
@@ -575,10 +616,15 @@
     test('**', 123123, '<span class="vue-format-single"><span class="vue-format-single-fill">*</span></span>');
     test('#\\元', 123123, '123123元');
     test('#"人民币"', 123123, '123123人民币');
-    test('[蓝色]#.00', 0.123, '<span class="vue-format-single vue-format-single-color-blue">0.12</span>');// wrong
+    test('[蓝色]#.00', 0.123, '<span class="vue-format-single vue-format-single-color-blue">.12</span>');// wrong
+    test('[蓝色]0.00', 0.123, '<span class="vue-format-single vue-format-single-color-blue">0.12</span>');// wrong
     test('[蓝色]¥*-0', 1, '<span class="vue-format-single vue-format-single-color-blue"><span>¥</span><span class="vue-format-single-fill">-</span><span>1</span></span>');
     test('[>1]"上升";[=1]"持平";"下降"', 1.2, '上升');
     test('[>=1]"上升";[=1]"持平";"下降"', 1, '上升');
+    test('[>1]"上升";[=1]"持平";"下降"', 1, '持平');
+    test('[>1]"上升";[=1]"持平";"下降"', 0.8, '下降');
+    test('[<>1]"变动";[=1]"持平";"空"', 1, '持平');
+    test('[<>1]"变动";[=1]"持平";"空"', 1.1, '变动');
     test('[>1][绿色];[=1][黄色];[红色]', 1.2, '<span class="vue-format-single vue-format-single-color-green">1.2</span>');
     test('[>1][绿色];[=1][黄色];[红色]', 1, '<span class="vue-format-single vue-format-single-color-yellow">1</span>');
     test('[>1][绿色];[=1][黄色];[红色]', 0.8, '<span class="vue-format-single vue-format-single-color-red">0.8</span>');
@@ -588,5 +634,16 @@
     test('YY', 1562838244, '19');
     test('YY-MM-DD', 1562838244, '19-07-11');
     test('YY-MM-DD HH:mm:ss', 1562838244, '19-07-11 17:44:04');
+    test('00000,000', 1111, '00,001,111');
+    test('00000,000', 111, '00,000,111');
+    // // 支持科学技术法格式的数字
+    test('0.####', 9.568181142949328e-7, '0');
+    test('###.??', 9.568181142949328e-7, '.  ');
+    test('###.######', 9.568181142949328e-7, '.000001');
+    test('###.#######', 9.568181142949328e-7, '.000001');
+    test('###.########', 9.568181142949328e-7, '.00000096');
+    test('###.####', 9.568181142949328e-7, '');
+    test('##0.0000', 9.568181142949328e-7, '0.0000');
+    test('###.0000', 9.568181142949328e-7, '.0000');
 
 }());
