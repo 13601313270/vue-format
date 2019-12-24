@@ -1,7 +1,7 @@
 ## 插件介绍
 用过excel格式设置的人，都了解excel格式定义功能的强大，几乎所有想要的格式，都可以设置。
 
-![image](https://raw.githubusercontent.com/13601313270/vue-format/master/Document/image.png)
+![image](https://www-kodphp-cn.oss-cn-beijing.aliyuncs.com/1577073811148.png)
 因为前端也需要一个功能全的自定义格式扩展，vue-text-format这个扩展移植了excel的功能，可以在页面上方便的对数据改变显示格式。
 使用方式也很简单，通过扩展vue的自定义命令v-format的形式，绑定格式，就可以将内部的文本进行转换。
 
