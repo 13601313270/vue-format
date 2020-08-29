@@ -353,13 +353,16 @@ export default function(code, value) {
                     }
                     code = code.slice(1);
                 } else {
+                    // 格式code 对比 数字，多余的部分
                     if(temp === '0') {
                         returnHtml += '0';
                     } else if(temp === '?') {
                         returnHtml += ' ';
                     }
-                    if(isQianfenwei && (codeZhengshuNumCount - finishedNumCount) % 3 === 1 && codeZhengshuNumCount - finishedNumCount !== 1) {
-                        returnHtml += ',';
+                    if (temp === '0') {
+                        if(isQianfenwei && (codeZhengshuNumCount - finishedNumCount) % 3 === 1 && codeZhengshuNumCount - finishedNumCount !== 1) {
+                            returnHtml += ',';
+                        }
                     }
                     code = code.slice(1);
                 }

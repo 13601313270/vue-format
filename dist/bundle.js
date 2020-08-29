@@ -463,13 +463,16 @@
                         }
                         code = code.slice(1);
                     } else {
+                        // 格式code 对比 数字，多余的部分
                         if(temp === '0') {
                             returnHtml += '0';
                         } else if(temp === '?') {
                             returnHtml += ' ';
                         }
-                        if(isQianfenwei && (codeZhengshuNumCount - finishedNumCount) % 3 === 1 && codeZhengshuNumCount - finishedNumCount !== 1) {
-                            returnHtml += ',';
+                        if (temp === '0') {
+                            if(isQianfenwei && (codeZhengshuNumCount - finishedNumCount) % 3 === 1 && codeZhengshuNumCount - finishedNumCount !== 1) {
+                                returnHtml += ',';
+                            }
                         }
                         code = code.slice(1);
                     }
@@ -581,6 +584,9 @@
     test('0.##%', 0.123, '12.3%');
     test('0.#', 11.23, '11.2');
     test('#,###', 12000, '12,000');
+    test('¥#,###', 12000, '¥12,000');
+    test('#,###', 10, '10');
+    test('¥#,###', 10, '¥10');
     test('#,###', 1200000, '1,200,000');
     test('0.00%', 3, '300.00%');
     test('###.##%', 3, '300%');
