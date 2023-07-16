@@ -7,15 +7,18 @@
 
 ## 使用方法
 ### 安装
-npm install vue-text-format
+npm install vue-text-format --save
 
 在入口文件引用插件main.js
 ```
-import Vue from 'vue'
-
-
+import { createApp } from 'vue';
 import format from 'vue-text-format';
-Vue.use(format);
+import App from './App.vue';
+
+createApp(App)
+  .use(format)// use挂载这个插件
+  .mount('#app');
+
 ```
 ### 使用
 方式1：指令v-format
@@ -26,10 +29,12 @@ Vue.use(format);
 
 方式2：函数调用，vue原型上绑定了一个textFormat函数
 ```javascript
+import { defineComponent, getCurrentInstance } from 'vue';
 export default {
     name: 'home',
     mounted() {
-        let newVal = this.textFormat(0.123, '0.##%');
+        const { proxy }: any = getCurrentInstance();
+        let newVal = proxy.$textFormat(0.123, '0.##%');
         // 将获得12.3%
     }
 }

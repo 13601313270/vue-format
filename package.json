@@ -1,6 +1,6 @@
 {
   "name": "vue-text-format",
-  "version": "1.2.6",
+  "version": "3.0.1",
   "description": "Used in projects, in accordance with Excel custom format rules.",
   "main": "src/main.js",
   "scripts": {
@@ -19,11 +19,6 @@
   "bugs": {
     "url": "https://github.com/13601313270/vue-format/issues"
   },
-  "homepage": "https://github.com/13601313270/vue-format#readme",
-  "devDependencies": {
-    "rollup": "^1.16.7"
-  },
-  "dependencies": {
-    "typescript": "^3.6.3"
-  }
+  "vue": "^3.0.0",
+  "homepage": "https://github.com/13601313270/vue-format#readme"
 }
