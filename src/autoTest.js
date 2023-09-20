@@ -4,16 +4,19 @@ import encodeHtml from './encodeHtml';
 
 function test(code, value, result) {
     let runResult = encodeHtml(format(code, value));
-    if(runResult === result) {
+    if (runResult === result) {
         console.log('finish');
         // console.log(runResult);
     } else {
         console.log('==========');
         console.log(code, value, runResult);
+        throw new Error()
     }
 }
 
 console.log('开始运行测试用例');
+test('#,###.00', 19526.00, '19,526.00');
+test('#,###', 19526.00, '19,526');
 test('###.##', 12.1263, '12.13');
 test('##.^##^##^###', 3.1234567811, '3.^12^34^568');
 test('##.##^##^###', 3.1234567811, '3.12^34^568');
@@ -94,7 +97,47 @@ test('#_圆圆', 123123, '123123<span style="opacity: 0">圆</span>圆');
 test('YYYY', 1562838244, '2019');
 test('YY', 1562838244, '19');
 test('YY-MM-DD', 1562838244, '19-07-11');
+
+// 日期月份计算
+test('YY-MMM-DD', 1547995981, '19-Jan-20');//1
+test('YY-MMM-DD', 1550674381, '19-Feb-20');//2
+test('YY-MMM-DD', 1553093581, '19-Mar-20');//3
+test('YY-MMM-DD', 1555771981, '19-Apr-20');//4
+test('YY-MMM-DD', 1558363981, '19-May-20');//5
+test('YY-MMM-DD', 1561042381, '19-Jun-20');//6
+
+test('YY-MMM-DD', 1563634381, '19-Jul-20');//7
+test('YY-MMM-DD', 1566312781, '19-Aug-20');//8
+test('YY-MMM-DD', 1568991181, '19-Sep-20');//9
+test('YY-MMM-DD', 1571583181, '19-Oct-20');//10
+test('YY-MMM-DD', 1574261581, '19-Nov-20');//11
+test('YY-MMM-DD', 1576853581, '19-Dec-20');//12
+test('YYYY-MMM-DD', 1576853581, '2019-Dec-20');//12
+test('YY-MMM-DD', 1562838244, '19-Jul-11');
+test('yy-MM-DD', 1562838244, '19-07-11');
 test('YY-MM-DD HH:mm:ss', 1562838244, '19-07-11 17:44:04');
+test('YYYY"年"MM"月"DD"日"', 1576853581, '2019年12月20日');//12
+
+test('YY-MM-DD HH:mm:ss DDDD', 1695221581, '23-09-20 22:53:01 星期三');
+test('YY-MM-DD HH:mm:ss DDD', 1695221581, '23-09-20 22:53:01 周三');
+
+test('YY-MM-DD HH:mm:ss AM/PM', 1695221581, '23-09-20 22:53:01 PM');
+test('YY-MM-DD HH:mm:ss DDD AM/PM', 1695221581, '23-09-20 22:53:01 周三 PM');
+
+
+test('YY-MM-DD HH:mm:ss 上午/下午', 1695139200, '23-09-20 00:00:00 上午');
+test('YY-MM-DD HH:mm:ss 上午/下午', 1695182399, '23-09-20 11:59:59 上午');
+test('YY-MM-DD HH:mm:ss 上午/下午', 1695182400, '23-09-20 12:00:00 下午');
+test('YY-MM-DD HH:mm:ss 上午/下午', 1695225599, '23-09-20 23:59:59 下午');
+test('YY-MM-DD HH:mm:ss上午/下午', 1695225599, '23-09-20 23:59:59下午');
+
+
+test('YY-MM-DD HH:mm:ss AM/PM', 1695139200, '23-09-20 00:00:00 AM');
+test('YY-MM-DD HH:mm:ss AM/PM', 1695182399, '23-09-20 11:59:59 AM');
+test('YY-MM-DD HH:mm:ss AM/PM', 1695182400, '23-09-20 12:00:00 PM');
+test('YY-MM-DD HH:mm:ss AM/PM', 1695225599, '23-09-20 23:59:59 PM');
+test('YY-MM-DD HH:mm:ssAM/PM', 1695225599, '23-09-20 23:59:59PM');
+
 test('00000,000', 1111, '00,001,111');
 test('00000,000', 111, '00,000,111');
 // // 支持科学技术法格式的数字
