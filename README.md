@@ -10,6 +10,21 @@
 npm install vue-text-format --save
 
 在入口文件引用插件main.js
+
+#### vue3 通过use引入demo
+
+```
+import Vue, { createApp } from 'vue'
+import format from 'vue-text-format';
+import App from './App.vue';
+const app = createApp(App)
+
+app
+  .use(format)
+  .mount('#app')
+
+```
+#### vue2 通过use引入demo
 ```
 import { createApp } from 'vue';
 import format from 'vue-text-format';
@@ -20,6 +35,7 @@ createApp(App)
   .mount('#app');
 
 ```
+
 ### 使用
 方式1：指令v-format
 通过v-format传入想要转换的格式
