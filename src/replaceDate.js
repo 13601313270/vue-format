@@ -68,6 +68,13 @@ export default function (creatVal, value) {
                 }
             ],
             [
+                'M',
+                (date) => {
+                    let month = date.getMonth() + 1;
+                    return month.toString();
+                }
+            ],
+            [
                 'DDDD',
                 (date) => {
                     const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
@@ -89,6 +96,20 @@ export default function (creatVal, value) {
                 }
             ],
             [
+                'D',
+                (date) => {
+                    let day = date.getDate();
+                    return day.toString();
+                }
+            ],
+            [
+                'd',
+                (date) => {
+                    let day = date.getDate();
+                    return day.toString();
+                }
+            ],
+            [
                 'HH',
                 (date) => {
                     let hour = date.getHours();
@@ -103,10 +124,31 @@ export default function (creatVal, value) {
                 }
             ],
             [
+                'H',
+                (date) => {
+                    let hour = date.getHours();
+                    return hour.toString();
+                }
+            ],
+            [
+                'h',
+                (date) => {
+                    let hour = date.getHours();
+                    return hour.toString();
+                }
+            ],
+            [
                 'mm',
                 (date) => {
                     let minute = date.getMinutes();
                     return (minute < 10 ? '0' : '') + minute;
+                }
+            ],
+            [
+                'm',
+                (date) => {
+                    let minute = date.getMinutes();
+                    return minute.toString();
                 }
             ],
             [
@@ -116,10 +158,42 @@ export default function (creatVal, value) {
                     return (second < 10 ? '0' : '') + second;
                 }
             ],
+            [
+                's',
+                (date) => {
+                    let second = date.getSeconds();
+                    return second.toString();
+                }
+            ],
         ];
-        rep.forEach(item => {
-            creatVal = creatVal.replace(item[0], item[1](date));
-        });
+        const allKeys = rep.map(v => v[0])
+        let step = 0;
+        let lastResult = '';
+        for (let i = 0; i < creatVal.length; i = step) {
+            let word;
+            if (allKeys.includes(creatVal.slice(i, i + 5))) {
+                word = creatVal.slice(i, i + 5);
+            } else if (allKeys.includes(creatVal.slice(i, i + 4))) {
+                word = creatVal.slice(i, i + 4);
+            } else if (allKeys.includes(creatVal.slice(i, i + 3))) {
+                word = creatVal.slice(i, i + 3);
+            } else if (allKeys.includes(creatVal.slice(i, i + 2))) {
+                word = creatVal.slice(i, i + 2);
+            } else if (allKeys.includes(creatVal.slice(i, i + 1))) {
+                word = creatVal.slice(i, i + 1);
+            }
+            if (word) {
+                step = i + word.length
+                const relation = rep.find(v => v[0] === word);
+                if (relation) {
+                    lastResult += relation[1](date)
+                }
+            } else {
+                step = i + 1
+                lastResult += creatVal[i]
+            }
+        }
+        return lastResult;
     }
     return creatVal.toString();
 }

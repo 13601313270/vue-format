@@ -45,3 +45,4 @@ export default {
         }
     }
 }
+export const textFormat = format;

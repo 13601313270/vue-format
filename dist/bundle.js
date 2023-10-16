@@ -118,6 +118,13 @@
                     }
                 ],
                 [
+                    'M',
+                    (date) => {
+                        let month = date.getMonth() + 1;
+                        return month.toString();
+                    }
+                ],
+                [
                     'DDDD',
                     (date) => {
                         const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
@@ -139,6 +146,20 @@
                     }
                 ],
                 [
+                    'D',
+                    (date) => {
+                        let day = date.getDate();
+                        return day.toString();
+                    }
+                ],
+                [
+                    'd',
+                    (date) => {
+                        let day = date.getDate();
+                        return day.toString();
+                    }
+                ],
+                [
                     'HH',
                     (date) => {
                         let hour = date.getHours();
@@ -153,10 +174,31 @@
                     }
                 ],
                 [
+                    'H',
+                    (date) => {
+                        let hour = date.getHours();
+                        return hour.toString();
+                    }
+                ],
+                [
+                    'h',
+                    (date) => {
+                        let hour = date.getHours();
+                        return hour.toString();
+                    }
+                ],
+                [
                     'mm',
                     (date) => {
                         let minute = date.getMinutes();
                         return (minute < 10 ? '0' : '') + minute;
+                    }
+                ],
+                [
+                    'm',
+                    (date) => {
+                        let minute = date.getMinutes();
+                        return minute.toString();
                     }
                 ],
                 [
@@ -166,10 +208,42 @@
                         return (second < 10 ? '0' : '') + second;
                     }
                 ],
+                [
+                    's',
+                    (date) => {
+                        let second = date.getSeconds();
+                        return second.toString();
+                    }
+                ],
             ];
-            rep.forEach(item => {
-                creatVal = creatVal.replace(item[0], item[1](date));
-            });
+            const allKeys = rep.map(v => v[0]);
+            let step = 0;
+            let lastResult = '';
+            for (let i = 0; i < creatVal.length; i = step) {
+                let word;
+                if (allKeys.includes(creatVal.slice(i, i + 5))) {
+                    word = creatVal.slice(i, i + 5);
+                } else if (allKeys.includes(creatVal.slice(i, i + 4))) {
+                    word = creatVal.slice(i, i + 4);
+                } else if (allKeys.includes(creatVal.slice(i, i + 3))) {
+                    word = creatVal.slice(i, i + 3);
+                } else if (allKeys.includes(creatVal.slice(i, i + 2))) {
+                    word = creatVal.slice(i, i + 2);
+                } else if (allKeys.includes(creatVal.slice(i, i + 1))) {
+                    word = creatVal.slice(i, i + 1);
+                }
+                if (word) {
+                    step = i + word.length;
+                    const relation = rep.find(v => v[0] === word);
+                    if (relation) {
+                        lastResult += relation[1](date);
+                    }
+                } else {
+                    step = i + 1;
+                    lastResult += creatVal[i];
+                }
+            }
+            return lastResult;
         }
         return creatVal.toString();
     }
@@ -716,6 +790,8 @@
     test('YYYY-MMM-DD', 1576853581, '2019-Dec-20');//12
     test('YY-MMM-DD', 1562838244, '19-Jul-11');
     test('yy-MM-DD', 1562838244, '19-07-11');
+    test('yy-M-DD', 1562838244, '19-7-11');
+    test('yy-M-D', 1672506061, '23-1-1');
     test('YY-MM-DD HH:mm:ss', 1562838244, '19-07-11 17:44:04');
     test('YYYY"年"MM"月"DD"日"', 1576853581, '2019年12月20日');//12
 
@@ -738,6 +814,16 @@
     test('YY-MM-DD HH:mm:ss AM/PM', 1695182400, '23-09-20 12:00:00 PM');
     test('YY-MM-DD HH:mm:ss AM/PM', 1695225599, '23-09-20 23:59:59 PM');
     test('YY-MM-DD HH:mm:ssAM/PM', 1695225599, '23-09-20 23:59:59PM');
+
+
+    test('hh-M-M', 1672599845, '03-1-1');
+    test('hh-m-m', 1672599845, '03-4-4');
+    test('h-m-m', 1672599845, '3-4-4');
+    test('d-m-m', 1672599845, '2-4-4');
+    test('D-m-m', 1672599845, '2-4-4');
+    test('H-m-m', 1672599845, '3-4-4');
+    test('H-m-m ss', 1672599845, '3-4-4 05');
+    test('H-m-M s', 1672599845, '3-4-1 5');
 
     test('00000,000', 1111, '00,001,111');
     test('00000,000', 111, '00,000,111');
