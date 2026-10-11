@@ -45,4 +45,6 @@ export default {
         }
     }
 }
-export const textFormat = format;
+export const textFormat = (value, code) => {
+    return format(code, value).join('');
+};
